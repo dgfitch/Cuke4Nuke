@@ -14,6 +14,19 @@ task :test do
   sh %{"#{nunit}" "#{tests}"}
 end
 
+desc "Run the install"
+task :install => :build do
+  # I'm sure there's a better way to do this
+  cd "gem"
+  sh %{rake install}
+  cd ".."
+end
+
+desc "Run the features with cucumber"
+task :cucumber => :install do
+  sh "cucumber"
+end
+
 task :log => 'log:less'
 
 namespace :log do
@@ -32,3 +45,4 @@ def log
   file = File.expand_path(File.dirname(__FILE__) + '/Cuke4Nuke/Server/bin/Release/Cuke4NukeLog.txt')
   %{"#{file}"}
 end
+
