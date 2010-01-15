@@ -52,26 +52,33 @@ namespace Cuke4Nuke.Framework
                 bool hasMatchingRow = false;
                 foreach (var acRow in this.Hashes())
                 {
-	                foreach (var key in exRow.Keys)
-	                {
-		                if (exRow[key] == acRow[key])
-		                {
-			                hasMatchingRow = true;
-		                }
-		                else
-		                {
-			                hasMatchingRow = false;
-			                break;
-		                }
-	                }
-	                if(hasMatchingRow)
-	                    break;
+                    foreach (var key in exRow.Keys)
+                    {
+                        if (exRow[key] == acRow[key])
+                        {
+                            hasMatchingRow = true;
+                        }
+                        else
+                        {
+                            hasMatchingRow = false;
+                            break;
+                        }
+                    }
+                    if (hasMatchingRow)
+                        break;
                 }
                 if (!hasMatchingRow)
-		            return false;
-		            
+                    return false;
             }
             return true;
+        }
+
+        public List<string> Headers()
+        {
+            if (Data.Count == 0)
+                return new List<string>();
+            else
+                return Data[0];
         }
     }
 }

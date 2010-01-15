@@ -27,20 +27,6 @@ Feature: Print step definition snippets for undefined steps
       }
       """
 
-  Scenario: Snippet with double quotes
-    Given a file named "features/wired.feature" with:
-      """
-        Scenario: Quotes
-          Given I "love" quotes
-
-      """
-    And Cuke4Nuke started with no step definition assemblies
-    When I run cucumber -f pretty
-    Then the output should contain
-      """
-      [Given(@"^I ""love"" quotes$")]
-      """
-
   Scenario: Snippet with a table
     Given a file named "features/wired.feature" with:
       """
@@ -162,3 +148,16 @@ Feature: Print step definition snippets for undefined steps
       }
       """
 
+   Scenario: Snippet for step with double quotes
+     Given a file named "features/wired.feature" with:
+      """
+        Scenario: Quotes
+          Given I "love" quotes
+
+      """
+     And Cuke4Nuke started with no step definition assemblies
+     When I run cucumber -f pretty
+     Then the output should contain
+      """
+      [Given(@"^I ""love"" quotes$")]
+      """

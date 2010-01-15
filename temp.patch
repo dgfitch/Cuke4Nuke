@@ -1,0 +1,572 @@
+diff --git a/Cuke4Nuke/Core/Processor.cs b/Cuke4Nuke/Core/Processor.cs
+index d928880..5138700 100644
+--- a/Cuke4Nuke/Core/Processor.cs
++++ b/Cuke4Nuke/Core/Processor.cs
+@@ -6,9 +6,9 @@ using System.Reflection;
+ using Newtonsoft.Json;
+ using Newtonsoft.Json.Linq;
+ 
+-using Cuke4Nuke.Framework;
+-using System.Text;
+-using System.Text.RegularExpressions;
++using Cuke4Nuke.Framework;
++using System.Text;
++using System.Text.RegularExpressions;
+ using System.IO;
+ 
+ namespace Cuke4Nuke.Core
+@@ -56,10 +56,10 @@ namespace Cuke4Nuke.Core
+                     case "step_matches":
+                         string nameToMatch = ((JObject)requestObject[1])["name_to_match"].Value<string>();
+                         return StepMatches(nameToMatch);
+-                    case "snippet_text":
+-                        string keyword = ((JObject)requestObject[1])["step_keyword"].Value<string>();
+-                        string stepName = ((JObject)requestObject[1])["step_name"].Value<string>();
+-                        string multilineArgClass = ((JObject)requestObject[1])["multiline_arg_class"].Value<string>();
++                    case "snippet_text":
++                        string keyword = ((JObject)requestObject[1])["step_keyword"].Value<string>();
++                        string stepName = ((JObject)requestObject[1])["step_name"].Value<string>();
++                        string multilineArgClass = ((JObject)requestObject[1])["multiline_arg_class"].Value<string>();
+                         return SnippetResponse(keyword, stepName, multilineArgClass);
+                     case "invoke":
+                         JArray jsonArgs = (JArray)((JObject)requestObject[1])["args"];
+@@ -76,9 +76,9 @@ namespace Cuke4Nuke.Core
+                             }
+                         }
+                         return Invoke(requestObject[1]["id"].Value<string>(), args);
+-                    case "diff_ok":
++                    case "diff_ok":
+                         return SuccessResponse();
+-                    case "diff_failed":
++                    case "diff_failed":
+                         return FailResponse("Tables don't match.");
+                     default:
+                         return FailResponse("Invalid request '" + request + "'");
+@@ -89,63 +89,63 @@ namespace Cuke4Nuke.Core
+                 log.Error("Unable to process request '" + request + "': " + x.Message);
+                 return FailResponse(x);
+             }
+-        }
+-
+-        private string SnippetResponse(string keyword, string stepName, string multilineArgClass)
+-        {
+-            SnippetBuilder sb = new SnippetBuilder();
+-            string snippet = sb.GenerateSnippet(keyword, stepName, multilineArgClass);
+-            return String.Format("[\"snippet_text\", \"{0}\"]", snippet);
+-        }
+-
++        }
++
++        private string SnippetResponse(string keyword, string stepName, string multilineArgClass)
++        {
++            SnippetBuilder sb = new SnippetBuilder();
++            string snippet = sb.GenerateSnippet(keyword, stepName, multilineArgClass);
++            return String.Format("[\"snippet_text\", \"{0}\"]", snippet);
++        }
++
+         string SuccessResponse()
+         {
+-            return "[\"success\",null]";
+-        }
+-
+-        string PendingResponse()
+-        {
+-            return "[\"pending\",null]";
+-        }
+-
+-        string FailResponse(string message)
+-        {
+-            StringBuilder sb = new StringBuilder();
+-            StringWriter sw = new StringWriter(sb);
+-            using (JsonWriter jsonWriter = new JsonTextWriter(sw))
+-            {
+-                jsonWriter.Formatting = Formatting.None;
+-                jsonWriter.WriteStartArray();
+-                jsonWriter.WriteValue("fail");
+-                jsonWriter.WriteStartObject();
+-                jsonWriter.WritePropertyName("message");
+-                jsonWriter.WriteValue(message);
+-                jsonWriter.WriteEndObject();
+-                jsonWriter.WriteEndArray();
+-            }
+-            return sw.ToString();
+-        }
+-
+-        string FailResponse(Exception ex)
+-        {
+-            StringBuilder sb = new StringBuilder();
+-            StringWriter sw = new StringWriter(sb);
+-            using (JsonWriter jsonWriter = new JsonTextWriter(sw))
+-            {
+-                jsonWriter.Formatting = Formatting.None;
+-                jsonWriter.WriteStartArray();
+-                jsonWriter.WriteValue("fail");
+-                jsonWriter.WriteStartObject();
+-                jsonWriter.WritePropertyName("exception");
+-                jsonWriter.WriteValue(ex.GetType().ToString());
+-                jsonWriter.WritePropertyName("message");
+-                jsonWriter.WriteValue(ex.Message);
+-                jsonWriter.WritePropertyName("backtrace");
+-                jsonWriter.WriteValue(ex.StackTrace);
+-                jsonWriter.WriteEndObject();
+-                jsonWriter.WriteEndArray();
+-            }
+-            return sw.ToString();
++            return "[\"success\",null]";
++        }
++
++        string PendingResponse()
++        {
++            return "[\"pending\",null]";
++        }
++
++        string FailResponse(string message)
++        {
++            StringBuilder sb = new StringBuilder();
++            StringWriter sw = new StringWriter(sb);
++            using (JsonWriter jsonWriter = new JsonTextWriter(sw))
++            {
++                jsonWriter.Formatting = Formatting.None;
++                jsonWriter.WriteStartArray();
++                jsonWriter.WriteValue("fail");
++                jsonWriter.WriteStartObject();
++                jsonWriter.WritePropertyName("message");
++                jsonWriter.WriteValue(message);
++                jsonWriter.WriteEndObject();
++                jsonWriter.WriteEndArray();
++            }
++            return sw.ToString();
++        }
++
++        string FailResponse(Exception ex)
++        {
++            StringBuilder sb = new StringBuilder();
++            StringWriter sw = new StringWriter(sb);
++            using (JsonWriter jsonWriter = new JsonTextWriter(sw))
++            {
++                jsonWriter.Formatting = Formatting.None;
++                jsonWriter.WriteStartArray();
++                jsonWriter.WriteValue("fail");
++                jsonWriter.WriteStartObject();
++                jsonWriter.WritePropertyName("exception");
++                jsonWriter.WriteValue(ex.GetType().ToString());
++                jsonWriter.WritePropertyName("message");
++                jsonWriter.WriteValue(ex.Message);
++                jsonWriter.WritePropertyName("backtrace");
++                jsonWriter.WriteValue(ex.StackTrace);
++                jsonWriter.WriteEndObject();
++                jsonWriter.WriteEndArray();
++            }
++            return sw.ToString();
+         }
+ 
+         string StepMatches(string stepName)
+@@ -186,32 +186,32 @@ namespace Cuke4Nuke.Core
+                 if (stepDefinition == null)
+                 {
+                     return FailResponse("Could not find step with id '" + id + "'");
+-                }
+-
+-                if (stepDefinition.Pending)
+-                {
+-                    return PendingResponse();
++                }
++
++                if (stepDefinition.Pending)
++                {
++                    return PendingResponse();
+                 }
+ 
+                 stepDefinition.Invoke(_objectFactory, args);
+                 return SuccessResponse();
+             }
+             catch (TargetInvocationException x)
+-            {
+-                if (x.InnerException is TableAssertionException)
+-                {
+-                    TableAssertionException ex = (TableAssertionException) x.InnerException;
+-                    return TableDiffResponse(ex.Expected, ex.Actual);
++            {
++                if (x.InnerException is TableAssertionException)
++                {
++                    TableAssertionException ex = (TableAssertionException) x.InnerException;
++                    return TableDiffResponse(ex.Expected, ex.Actual);
+                 }
+                 return FailResponse(x.InnerException);
+             }
+         }
+ 
+-        private string TableDiffResponse(Table expectedTable, Table actualTable)
+-        {
+-            TypeConverter converter = TypeDescriptor.GetConverter(typeof(Table));
+-            string expectedTableJson = (string)converter.ConvertToString(expectedTable);
+-            string actualTableJson = (string)converter.ConvertToString(actualTable);
++        private string TableDiffResponse(Table expectedTable, Table actualTable)
++        {
++            TypeConverter converter = TypeDescriptor.GetConverter(typeof(Table));
++            string expectedTableJson = (string)converter.ConvertToString(expectedTable);
++            string actualTableJson = (string)converter.ConvertToString(actualTable);
+             return String.Format("[\"diff\", [{0},{1}]]", expectedTableJson, actualTableJson);
+         }
+ 
+diff --git a/Cuke4Nuke/Core/SnippetBuilder.cs b/Cuke4Nuke/Core/SnippetBuilder.cs
+index 5d02481..3ab8c7b 100644
+--- a/Cuke4Nuke/Core/SnippetBuilder.cs
++++ b/Cuke4Nuke/Core/SnippetBuilder.cs
+@@ -1,57 +1,57 @@
+-﻿using System.Text;
+-using System.Text.RegularExpressions;
+-using System;
+-
+-namespace Cuke4Nuke.Core
+-{
+-    public class SnippetBuilder
+-    {
+-        public string GenerateSnippet(string keyword, string stepName)
+-        {
+-            string multilineArgClass = String.Empty;
+-            return GenerateSnippet(keyword, stepName, multilineArgClass);
+-        }
+-
+-        public string GenerateSnippet(string keyword, string stepName, string multilineArgClass)
+-        {
+-            string parameter = "";
+-            if (multilineArgClass == "Cucumber::Ast::Table")
+-            {
+-                parameter = "Table table";
+-            }
+-            else if (multilineArgClass == "Cucumber::Ast::PyString")
+-            {
+-                parameter = "string str";
+-            }
+-
+-            string methodName = StepNameToMethodName(stepName);
+-            StringBuilder sb = new StringBuilder();
+-            sb.Append("[Pending]\\n");
+-            sb.AppendFormat("[{0}(@\\\"^{1}$\\\")]\\n", keyword, stepName);
+-            sb.AppendFormat("public void {0}({1})\\n", methodName, parameter);
+-            sb.Append("{\\n");
+-            sb.Append("}");
+-            string snippet = sb.ToString();
+-            return snippet;
+-        }
+-
+-        public string StepNameToMethodName(string stepName)
+-        {
+-            string s = stepName;
+-            s = Regex.Replace(s, @"[^A-Za-z0-9\s]", "");
+-            s = Regex.Replace(s, @"\s+", " ");
+-            s = s.Trim();
+-            string[] words = s.Split(' ');
+-            StringBuilder methodNameBuilder = new StringBuilder();
+-            foreach (string word in words)
+-            {
+-                methodNameBuilder.Append(word.Substring(0, 1).ToUpper());
+-                if (word.Length > 1)
+-                {
+-                    methodNameBuilder.Append(word.Substring(1).ToLower());
+-                }
+-            }
+-            return methodNameBuilder.ToString();
+-        }
+-    }
+-}
++﻿using System.Text;
++using System.Text.RegularExpressions;
++using System;
++
++namespace Cuke4Nuke.Core
++{
++    public class SnippetBuilder
++    {
++        public string GenerateSnippet(string keyword, string stepName)
++        {
++            string multilineArgClass = String.Empty;
++            return GenerateSnippet(keyword, stepName, multilineArgClass);
++        }
++
++        public string GenerateSnippet(string keyword, string stepName, string multilineArgClass)
++        {
++            string parameter = "";
++            if (multilineArgClass == "Cucumber::Ast::Table")
++            {
++                parameter = "Table table";
++            }
++            else if (multilineArgClass == "Cucumber::Ast::PyString")
++            {
++                parameter = "string str";
++            }
++
++            string methodName = StepNameToMethodName(stepName);
++            StringBuilder sb = new StringBuilder();
++            sb.Append("[Pending]\\n");
++            sb.AppendFormat("[{0}(@\\\"^{1}$\\\")]\\n", keyword, stepName.Replace("\"", "\\\"\\\""));
++            sb.AppendFormat("public void {0}({1})\\n", methodName, parameter);
++            sb.Append("{\\n");
++            sb.Append("}");
++            string snippet = sb.ToString();
++            return snippet;
++        }
++
++        public string StepNameToMethodName(string stepName)
++        {
++            string s = stepName;
++            s = Regex.Replace(s, @"[^A-Za-z0-9\s]", "");
++            s = Regex.Replace(s, @"\s+", " ");
++            s = s.Trim();
++            string[] words = s.Split(' ');
++            StringBuilder methodNameBuilder = new StringBuilder();
++            foreach (string word in words)
++            {
++                methodNameBuilder.Append(word.Substring(0, 1).ToUpper());
++                if (word.Length > 1)
++                {
++                    methodNameBuilder.Append(word.Substring(1).ToLower());
++                }
++            }
++            return methodNameBuilder.ToString();
++        }
++    }
++}
+diff --git a/Rakefile b/Rakefile
+index 31ac2d2..6b0ed28 100644
+--- a/Rakefile
++++ b/Rakefile
+@@ -14,6 +14,19 @@ task :test do
+   sh %{"#{nunit}" "#{tests}"}
+ end
+ 
++desc "Run the install"
++task :install => :build do
++  # I'm sure there's a better way to do this
++  cd "gem"
++  sh %{rake install}
++  cd ".."
++end
++
++desc "Run the features with cucumber"
++task :cucumber => :install do
++  sh "cucumber"
++end
++
+ task :log => 'log:less'
+ 
+ namespace :log do
+@@ -31,4 +44,4 @@ end
+ def log
+   file = File.expand_path(File.dirname(__FILE__) + '/Cuke4Nuke/Server/bin/Release/Cuke4NukeLog.txt')
+   %{"#{file}"}
+-end
+\ No newline at end of file
++end
+diff --git a/features/pending.feature b/features/pending.feature
+index 6ca078a..14eceea 100644
+--- a/features/pending.feature
++++ b/features/pending.feature
+@@ -1,5 +1,5 @@
+-Feature: Pending Steps
+-
++Feature: Pending Steps
++
+ 	Background:
+     Given a standard Cucumber project directory structure
+     And a file named "features/wired.feature" with:
+@@ -29,15 +29,15 @@ Feature: Pending Steps
+       """
+     When I run cucumber -f pretty -q
+     Then it should pass with
+-      """
+-
+-
+-        Scenario: Wired
+-          Given we're all wired
+-            TODO (Cucumber::Pending)
+-            features/wired.feature:2:in `Given we're all wired'
+-
+-      1 scenario (1 pending)
+-      1 step (1 pending)
+-
++      """
++
++
++        Scenario: Wired
++          Given we're all wired
++            TODO (Cucumber::Pending)
++            features/wired.feature:2:in `Given we're all wired'
++
++      1 scenario (1 pending)
++      1 step (1 pending)
++
+       """
+\ No newline at end of file
+diff --git a/features/snippets.feature b/features/snippets.feature
+index d105db1..f1d1e8c 100644
+--- a/features/snippets.feature
++++ b/features/snippets.feature
+@@ -27,6 +27,20 @@ Feature: Print step definition snippets for undefined steps
+       }
+       """
+ 
++  Scenario: Snippet with double quotes
++    Given a file named "features/wired.feature" with:
++      """
++        Scenario: Quotes
++          Given I "love" quotes
++
++      """
++    And Cuke4Nuke started with no step definition assemblies
++    When I run cucumber -f pretty
++    Then the output should contain
++      """
++      [Given(@"^I ""love"" quotes$")]
++      """
++
+   Scenario: Snippet with a table
+     Given a file named "features/wired.feature" with:
+       """
+@@ -146,4 +160,4 @@ Feature: Print step definition snippets for undefined steps
+       public void TheSeparatorIs()
+       {
+       }
+-      """
+\ No newline at end of file
++      """
+diff --git a/gem/cuke4nuke.gemspec b/gem/cuke4nuke.gemspec
+index 5897ff7..8c6a005 100644
+--- a/gem/cuke4nuke.gemspec
++++ b/gem/cuke4nuke.gemspec
+@@ -1,67 +1,67 @@
+-# Generated by jeweler
+-# DO NOT EDIT THIS FILE DIRECTLY
+-# Instead, edit Jeweler::Tasks in rakefile, and run the gemspec command
+-# -*- encoding: utf-8 -*-
+-
+-Gem::Specification.new do |s|
+-  s.name = %q{cuke4nuke}
+-  s.version = "0.3.0"
+-
+-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+-  s.authors = ["Richard Lawrence"]
+-  s.date = %q{2009-12-30}
+-  s.default_executable = %q{cuke4nuke}
+-  s.description = %q{Runs Cucumber with .NET step definitions.}
+-  s.email = %q{richard@humanizingwork.com}
+-  s.executables = ["cuke4nuke"]
+-  s.files = [
+-    "Rakefile",
+-     "VERSION",
+-     "bin/cuke4nuke",
+-     "cuke4nuke.gemspec",
+-     "dotnet/.gitignore",
+-     "dotnet/Castle.Core.dll",
+-     "dotnet/Castle.MicroKernel.dll",
+-     "dotnet/Cuke4Nuke.Core.dll",
+-     "dotnet/Cuke4Nuke.Framework.dll",
+-     "dotnet/Cuke4Nuke.Server.exe",
+-     "dotnet/Cuke4Nuke.Server.exe.config",
+-     "dotnet/Cuke4Nuke.TestStepDefinitions.dll",
+-     "dotnet/LitJson.dll",
+-     "dotnet/NDesk.Options.dll",
+-     "dotnet/Newtonsoft.Json.dll",
+-     "dotnet/log4net.dll",
+-     "lib/cuke4nuke/main.rb"
+-  ]
+-  s.homepage = %q{http://github.com/richardlawrence/Cuke4Nuke}
+-  s.rdoc_options = ["--charset=UTF-8"]
+-  s.require_paths = ["lib"]
+-  s.rubygems_version = %q{1.3.5}
+-  s.summary = %q{Cucumber for .NET}
+-
+-  if s.respond_to? :specification_version then
+-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
+-    s.specification_version = 3
+-
+-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+-      s.add_runtime_dependency(%q<cucumber>, [">= 0.5.2"])
+-      s.add_runtime_dependency(%q<win32-process>, [">= 0.6.1"])
+-      s.add_runtime_dependency(%q<systemu>, [">= 1.2.0"])
+-      s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
+-      s.add_runtime_dependency(%q<win32console>, [">= 1.2.0"])
+-    else
+-      s.add_dependency(%q<cucumber>, [">= 0.5.2"])
+-      s.add_dependency(%q<win32-process>, [">= 0.6.1"])
+-      s.add_dependency(%q<systemu>, [">= 1.2.0"])
+-      s.add_dependency(%q<json>, [">= 1.2.0"])
+-      s.add_dependency(%q<win32console>, [">= 1.2.0"])
+-    end
+-  else
+-    s.add_dependency(%q<cucumber>, [">= 0.5.2"])
+-    s.add_dependency(%q<win32-process>, [">= 0.6.1"])
+-    s.add_dependency(%q<systemu>, [">= 1.2.0"])
+-    s.add_dependency(%q<json>, [">= 1.2.0"])
+-    s.add_dependency(%q<win32console>, [">= 1.2.0"])
+-  end
+-end
+-
++# Generated by jeweler
++# DO NOT EDIT THIS FILE DIRECTLY
++# Instead, edit Jeweler::Tasks in rakefile, and run the gemspec command
++# -*- encoding: utf-8 -*-
++
++Gem::Specification.new do |s|
++  s.name = %q{cuke4nuke}
++  s.version = "0.3.0"
++
++  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
++  s.authors = ["Richard Lawrence"]
++  s.date = %q{2009-12-30}
++  s.default_executable = %q{cuke4nuke}
++  s.description = %q{Runs Cucumber with .NET step definitions.}
++  s.email = %q{richard@humanizingwork.com}
++  s.executables = ["cuke4nuke"]
++  s.files = [
++    "Rakefile",
++     "VERSION",
++     "bin/cuke4nuke",
++     "cuke4nuke.gemspec",
++     "dotnet/.gitignore",
++     "dotnet/Castle.Core.dll",
++     "dotnet/Castle.MicroKernel.dll",
++     "dotnet/Cuke4Nuke.Core.dll",
++     "dotnet/Cuke4Nuke.Framework.dll",
++     "dotnet/Cuke4Nuke.Server.exe",
++     "dotnet/Cuke4Nuke.Server.exe.config",
++     "dotnet/Cuke4Nuke.TestStepDefinitions.dll",
++     "dotnet/LitJson.dll",
++     "dotnet/NDesk.Options.dll",
++     "dotnet/Newtonsoft.Json.dll",
++     "dotnet/log4net.dll",
++     "lib/cuke4nuke/main.rb"
++  ]
++  s.homepage = %q{http://github.com/richardlawrence/Cuke4Nuke}
++  s.rdoc_options = ["--charset=UTF-8"]
++  s.require_paths = ["lib"]
++  s.rubygems_version = %q{1.3.5}
++  s.summary = %q{Cucumber for .NET}
++
++  if s.respond_to? :specification_version then
++    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
++    s.specification_version = 3
++
++    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
++      s.add_runtime_dependency(%q<cucumber>, [">= 0.5.2"])
++      s.add_runtime_dependency(%q<win32-process>, [">= 0.6.1"])
++      s.add_runtime_dependency(%q<systemu>, [">= 1.2.0"])
++      s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
++      s.add_runtime_dependency(%q<win32console>, [">= 1.2.0"])
++    else
++      s.add_dependency(%q<cucumber>, [">= 0.5.2"])
++      s.add_dependency(%q<win32-process>, [">= 0.6.1"])
++      s.add_dependency(%q<systemu>, [">= 1.2.0"])
++      s.add_dependency(%q<json>, [">= 1.2.0"])
++      s.add_dependency(%q<win32console>, [">= 1.2.0"])
++    end
++  else
++    s.add_dependency(%q<cucumber>, [">= 0.5.2"])
++    s.add_dependency(%q<win32-process>, [">= 0.6.1"])
++    s.add_dependency(%q<systemu>, [">= 1.2.0"])
++    s.add_dependency(%q<json>, [">= 1.2.0"])
++    s.add_dependency(%q<win32console>, [">= 1.2.0"])
++  end
++end
++
