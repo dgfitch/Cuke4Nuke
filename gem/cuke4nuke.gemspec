@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{cuke4nuke}
-  s.version = "0.3.0"
+  s.version = "0.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Richard Lawrence"]
-  s.date = %q{2010-01-15}
+  s.date = %q{2010-02-07}
   s.default_executable = %q{cuke4nuke}
   s.description = %q{Runs Cucumber with .NET step definitions.}
   s.email = %q{richard@humanizingwork.com}

@@ -24,6 +24,13 @@ namespace Cuke4Nuke.Core
             foreach (var assemblyPath in _assemblyPaths)
             {
                 var assembly = Assembly.LoadFrom(assemblyPath);
+                var configPath = assemblyPath + ".config";
+                if (System.IO.File.Exists(configPath)) {
+                    System.Diagnostics.Debug.WriteLine("cuke4nuke loading " + configPath);
+                    LoadConfig(configPath);
+                } else {
+                    System.Diagnostics.Debug.WriteLine("cuke4nuke could not find " + configPath);
+                }
                 foreach (var type in assembly.GetTypes())
                 {
                     foreach (var method in type.GetMethods(StepDefinition.MethodFlags))
@@ -48,6 +55,24 @@ namespace Cuke4Nuke.Core
             }
 
             return repository;
+        }
+
+        private void LoadConfig(string configPath) {
+            // Somehow merge the appsettings from that file into the configuration manager
+            // This is partially taken from the comments on http://www.codeproject.com/KB/dotnet/dllappconfig.aspx
+            AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
+            FieldInfo[] fiStateValues = null;
+            Type tInitState = typeof(System.Configuration.ConfigurationManager).GetNestedType("InitState",BindingFlags.NonPublic);
+            if (null != tInitState)
+                fiStateValues = tInitState.GetFields();
+
+            FieldInfo fiInit = typeof(System.Configuration.ConfigurationManager).GetField("s_initState",BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo fiSystem = typeof(System.Configuration.ConfigurationManager).GetField("s_configSystem", BindingFlags.NonPublic | BindingFlags.Static);
+            if (fiInit != null && fiSystem != null && null != fiStateValues)
+            {
+                fiInit.SetValue(null, fiStateValues[1].GetValue(null));
+                fiSystem.SetValue(null, null);
+            }
         }
     }
 }
