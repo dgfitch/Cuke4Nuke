@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
-require 'systemu'
 require 'win32/process'
 
 module Cuke4Nuke
@@ -23,7 +22,7 @@ module Cuke4Nuke
         @exit_status = 1
         begin
           cucumber_status = launch_cucumber(args)
-          @exit_status = cucumber_status.exitstatus
+          @exit_status = cucumber_status
         ensure
           kill_cuke4nuke_process
         end
@@ -44,9 +43,8 @@ module Cuke4Nuke
 
     def launch_cucumber(args)
       command = "cucumber #{args.join(' ')} 2>&1"
-      status, stdout, stderr = systemu(command)
-      puts stdout
-      status
+      system(command)
+      $?.exitstatus
     end
 
     def show_usage
